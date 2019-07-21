@@ -5,6 +5,8 @@
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
+    "cleanSH": "@powershell if((Test-Path -Path www)){del -R www}",
+    "buildSH": "@powershell npm run cleanSH; tsc; md config; cp src/config www/config/ -Recurse -Force; cp .npmrc www; cp package.json www; cd www; Compress-Archive * Archive.zip; cd ..; echo 'Project build completed'",
     "clean": "rm -rf www/ || true",
     "build": "npm run clean && tsc && cp package.json www/package.json && mkdir www/tmp/ && cd www && zip -r Archive.zip . && cd ..",
     "dev": "ts-node-dev --respawn --transpileOnly ./src/server.ts"
