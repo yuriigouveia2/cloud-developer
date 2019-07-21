@@ -1,5 +1,10 @@
 # Udagram Image Filtering Microservice
 
+## API Url
+Api url create for the Udagram project:
+
+1. http://udagram-yuri-image-filter.sa-east-1.elasticbeanstalk.com
+
 ## Tasks
 
 ### Setup Node Enviornment
