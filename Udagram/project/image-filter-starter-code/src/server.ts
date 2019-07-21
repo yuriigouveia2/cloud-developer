@@ -13,6 +13,13 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // Use the body parser middleware for post requests
   app.use(bodyParser.json());
 
+   //CORS Should be restricted
+   app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Origin", "http://localhost:8100");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept, Authorization");
+    next();
+  });
+
   // @TODO1 IMPLEMENT A RESTFUL ENDPOINT
   // GET /filteredimage?image_url={{URL}}
   // endpoint to filter an image from a public url.
@@ -30,20 +37,18 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   /**************************************************************************** */
 
   app.get("/filteredimage/", async (req, res) => {
-    let { image_url } = req.query;
+    let image_url = req.query.image_url;
 
-    const imageValidator = String(image_url).includes('.png')  || String(image_url).includes('.jpg') ||
-                           String(image_url).includes('.jpeg') || String(image_url).includes('.bmp');
-
-    if(!imageValidator) {
-      res.status(400).send('Image url invalid');
+    if(!image_url) {
+      res.status(400).send('Image url required');
     }
 
-    image_url = String(image_url).replace(/\\/g, '/');
-    console.log(image_url)
-
-    filterImageFromURL(image_url).then( newImage => {
-      res.status(201).send(newImage.replace(/\\/g, '/'));
+    const filteredImage = await filterImageFromURL(image_url);
+    res.status(200).sendFile(filteredImage, err =>{
+      if(err){
+        console.log(err);
+      }
+      deleteLocalFiles([filteredImage]);
     });
   });
 
@@ -52,7 +57,6 @@ import {filterImageFromURL, deleteLocalFiles} from './util/util';
   // Root Endpoint
   // Displays a simple message to the user
   app.get( "/", async ( req, res ) => {
-    console.log('Oi')
     res.send("try GET /filteredimage?image_url={{}}")
   } );
   

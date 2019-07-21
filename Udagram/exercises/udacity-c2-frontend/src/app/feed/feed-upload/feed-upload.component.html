@@ -1,6 +1,6 @@
 <form [formGroup]="uploadForm" (submit)="onSubmit($event)">`
     <label>
-        <input type="file" (change)="selectImage($event)" accept="image/*" style="display:none"/>
+        <input type="file" (change)="selectImage($event)" id="img" accept="image/*" style="display:none"/>
         <img *ngIf="previewDataUrl" [src]="previewDataUrl" style="width:50px; height: 50px;" />
         <a *ngIf="!previewDataUrl" ion-button color="secondary">
             Select a Photo

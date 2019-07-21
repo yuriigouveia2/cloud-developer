@@ -21,7 +21,8 @@ export class FeedUploadComponent implements OnInit {
     private feed: FeedProviderService,
     private formBuilder: FormBuilder,
     private loadingController: LoadingController,
-    private modalController: ModalController
+    private modalController: ModalController,
+    private apiService: ApiService
   ) { }
 
   ngOnInit() {
@@ -53,6 +54,10 @@ export class FeedUploadComponent implements OnInit {
   onSubmit($event) {
     $event.preventDefault();
     this.loadingController.create();
+
+    if(this.previewDataUrl){
+      console.log('Oi')
+    }
 
     if (!this.uploadForm.valid || !this.file) { return; }
     this.feed.uploadFeedItem(this.uploadForm.controls.caption.value, this.file)

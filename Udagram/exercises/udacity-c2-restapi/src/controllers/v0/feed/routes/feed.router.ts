@@ -2,8 +2,10 @@ import { Router, Request, Response } from 'express';
 import { FeedItem } from '../models/FeedItem';
 import { requireAuth } from '../../users/routes/auth.router';
 import * as AWS from '../../../../aws';
+import { Http } from '../../util/http';
 
 const router: Router = Router();
+const http: Http = new Http();
 
 // Get all feed items
 router.get('/', async (req: Request, res: Response) => {
@@ -42,7 +44,10 @@ router.patch('/:id',
 router.get('/signed-url/:fileName', 
     requireAuth, 
     async (req: Request, res: Response) => {
-    let { fileName } = req.params;
+    const { fileName } = req.params;
+    console.log('AAAA')
+    console.log(req.body)
+
     const url = AWS.getPutSignedUrl(fileName);
     res.status(201).send({url: url});
 });
@@ -57,6 +62,17 @@ router.get('/signed-url/get/:fileName',
         res.status(201).send({url: url})
     }
 );
+
+// router.get('/teste/get/', async (req: Request, res: Response) => {
+//     let fileName = 'C:/Users/yurig/OneDrive/Imagens/yuri.jpg'
+//     http.get(`/filteredimage/?image_url=${fileName}`).then(response => {
+//         const filtered = response.data;
+//         res.status(201).send({filtered})
+//     }).catch(err => {
+//         console.log(err + ': ERROR');
+//     });
+// });
+
 
 // Post meta data and the filename after a file is uploaded 
 // NOTE the file name is they key name in the s3 bucket.
