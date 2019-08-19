@@ -2,5 +2,5 @@ export interface JwtToken {
     iss: string,
     sub: string,
     iat: string,
-    exp: string
+    exp: string    
 }
