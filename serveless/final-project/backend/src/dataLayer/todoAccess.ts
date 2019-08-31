@@ -7,7 +7,9 @@ export class TodoAccess {
 
     constructor(
         private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
-        private readonly todoTable = process.env.TODO_TABLE
+        private readonly todoTable = process.env.TODO_TABLE,
+        private readonly bucketName = process.env.IMAGES_S3_BUCKET,
+        private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ) { }
 
     async DeleteItem(id: string): Promise<TodoItem[]> {
@@ -80,6 +82,15 @@ export class TodoAccess {
         const items = result.Items;
 
         return items as TodoItem[];
+    }
+
+    async todoExists(todoId: string): Promise<boolean> {
+        const result = await this.docClient.get({
+            TableName: this.todoTable,
+            Key: { "todoId": todoId}
+        }).promise();
+
+        return !!result.Item;
     }
 
 }
