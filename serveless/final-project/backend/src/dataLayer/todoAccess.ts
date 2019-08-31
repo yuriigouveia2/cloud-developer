@@ -22,8 +22,40 @@ export class TodoAccess {
         return todo;
     }
 
+    async UpdateTodo(id: string, todo: TodoItem): Promise<TodoItem> {
+        const logger = createLogger('update-todo');
+        logger.info('Updating a todo item ', {...todo});
+
+        await this.docClient.update({
+            TableName: this.todoTable,
+            Key: { 'todoId': id },
+            UpdateExpression: 'set info.name = :n, info.done = :d, info.dueDate = :dt',
+            ExpressionAttributeValues: {
+                ':n' : todo.name,
+                ':d' : todo.done,
+                ':dt': todo.dueDate
+            },
+            ReturnValues: 'UPDATED_NEW'
+        }).promise()
+
+        return todo;
+    }
+
+    async GetItem(id: string): Promise<TodoItem> {
+        const logger = createLogger('get-item');
+        logger.info('Getting signle todo item');
+
+        const result = await this.docClient.get({
+            TableName: this.todoTable,
+            Key: { 'todoId': id }
+        }).promise();
+
+        return result.Item as TodoItem;
+
+    }
+
     async GetAllTodos(): Promise<TodoItem[]> {
-        const logger = createLogger('get-todo');
+        const logger = createLogger('get-todos');
         logger.info('Getting all todo items ');
 
         const result = await this.docClient.scan({
