@@ -27,8 +27,14 @@ export async function UpdateTodo(
 
     const todo: TodoItem = await groupAccess.GetItem(id);
 
-
-    return await groupAccess.UpdateTodo(id, todo);
+    return await groupAccess.UpdateTodo(id, {
+        todoId: id,
+        createdAt: todo.createdAt,
+        userId: todo.userId,
+        dueDate: updatedTodo.dueDate,
+        name: updatedTodo.name,
+        done: updatedTodo.done
+    });
 }
 
 export async function CreateTodo(

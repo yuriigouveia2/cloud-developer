@@ -29,7 +29,10 @@ export class TodoAccess {
         await this.docClient.update({
             TableName: this.todoTable,
             Key: { 'todoId': id },
-            UpdateExpression: 'set info.name = :n, info.done = :d, info.dueDate = :dt',
+            UpdateExpression: 'set #name = :n, done = :d, dueDate = :dt',
+            ExpressionAttributeNames:{
+                "#name": "name"
+            },
             ExpressionAttributeValues: {
                 ':n' : todo.name,
                 ':d' : todo.done,
