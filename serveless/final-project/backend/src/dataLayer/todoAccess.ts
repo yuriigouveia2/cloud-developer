@@ -10,6 +10,18 @@ export class TodoAccess {
         private readonly todoTable = process.env.TODO_TABLE
     ) { }
 
+    async DeleteItem(id: string): Promise<TodoItem[]> {
+        const logger = createLogger('delete-todo');
+        logger.info('Deleting todo item'); 
+
+        await this.docClient.delete({
+            TableName: this.todoTable,
+            Key: { "todoId": id }
+        }).promise()
+
+        return [];
+    }
+
     async CreateTodo(todo: TodoItem): Promise<TodoItem> {
         const logger = createLogger('create-todo');
         logger.info('Creating a todo item ', {...todo});

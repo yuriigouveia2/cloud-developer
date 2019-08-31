@@ -8,6 +8,11 @@ import { UpdateTodoRequest } from '../requests/UpdateTodoRequest';
 
 const groupAccess = new TodoAccess();
 
+
+export async function deleteItem(id: string): Promise<TodoItem[]> {
+    return groupAccess.DeleteItem(id);
+}
+
 export async function getAllTodos(): Promise<TodoItem[]> {
     return groupAccess.GetAllTodos();
 }

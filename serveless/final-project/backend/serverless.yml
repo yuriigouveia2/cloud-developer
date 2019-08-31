@@ -16,17 +16,17 @@ provider:
   environment:
     TODO_TABLE: Todo-${self:provider.stage}
 
-# custom:
-#   documentation:
-#     api:
-#       info:
-#         version: v1.0.0
-#         title: Todo API
-#         description: Serverless API for a TODO app.
-#     models:
-#       - name: TodoRequest
-#         contentType: application/json
-#         schema: ${file(models/create-todo-request.json)}
+custom:
+  documentation:
+    api:
+      info:
+        version: v1.0.0
+        title: Todo API
+        description: Serverless API for a TODO app.
+    models:
+      - name: TodoRequest
+        contentType: application/json
+        schema: ${file(models/create-todo-request.json)}
 
 functions:
 
@@ -101,12 +101,12 @@ functions:
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
 
   # TODO: Configure this function
-  # GenerateUploadUrl:
-  #   handler: src/lambda/http/generateUploadUrl.handler
-  #   events:
-  #     - http:
-  #         method: post
-  #         path: todos/{todoId}/attachment
+  GenerateUploadUrl:
+    handler: src/lambda/http/generateUploadUrl.handler
+    events:
+      - http:
+          method: post
+          path: todos/{todoId}/attachment
 
 resources:
   Resources:
