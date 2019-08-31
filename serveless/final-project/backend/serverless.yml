@@ -1,10 +1,10 @@
 service:
-  name: serverless-todo-app-yuri
+  name: serverless-todo-yuri
 
 plugins:
   - serverless-webpack
   - serverless-iam-roles-per-function
-  # - serverless-aws-documentation
+  - serverless-aws-documentation
 
 provider:
   name: aws
@@ -16,7 +16,7 @@ provider:
   environment:
     TODO_TABLE: Todo-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
-    IMAGES_S3_BUCKET: serverless-images-udagram-${self:provider.stage}
+    IMAGES_S3_BUCKET: serverless-images-todo-${self:provider.stage}
 
 custom:
   documentation:
@@ -61,11 +61,12 @@ functions:
           method: post
           path: todos
           cors: true
+          # reqValidatorName: RequestBodyValidator
           documentation:
             summary: Create a new todo
             description: Create a new todo
             # requestModels:
-            #   'application/json': GroupRequest
+            #   'application/json': TodoRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -109,6 +110,12 @@ functions:
       - http:
           method: post
           path: todos/{todoId}/attachment
+    iamRoleStatements:
+      - Effect: Allow
+        Action:
+          - s3:PutObject
+          - s3:GetObject
+        Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
 
 resources:
   Resources:
@@ -124,4 +131,49 @@ resources:
             KeyType: HASH
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODO_TABLE}
-          
+
+    RequestBodyValidator:
+      Type: AWS::ApiGateway::RequestValidator
+      Properties:
+        Name: 'request-body-validator'
+        RestApiId:
+          Ref: ApiGatewayRestApi
+        ValidateRequestBody: true
+        ValidateRequestParameters: false        
+    
+    # S3 Bucket
+    AttachmentBucket:
+      Type: AWS::S3::Bucket
+      Properties:
+        BucketName: ${self:provider.environment.IMAGES_S3_BUCKET}
+        CorsConfiguration:
+          CorsRules:
+            -
+              AllowedOrigins:
+                - '*'
+              AllowedHeaders:
+                - '*'
+              AllowedMethods:
+                - GET
+                - PUT
+                - POST
+                - DELETE
+                - HEAD
+              MaxAge: 3000
+
+    # S3 Bucket Policy
+    BucketPolicy:
+      Type: AWS::S3::BucketPolicy
+      Properties:
+        PolicyDocument:
+          Id: Policy
+          Version: '2012-10-17'
+          Statement:
+            - Sid: PublicReadWriteBucketPolicy
+              Effect: Allow
+              Principal: '*' # Anyone
+              Action:
+                - s3:GetObject
+                - s3:PutObject
+              Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+        Bucket: !Ref AttachmentBucket

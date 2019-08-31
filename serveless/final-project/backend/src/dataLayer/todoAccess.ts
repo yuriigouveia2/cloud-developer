@@ -7,10 +7,22 @@ export class TodoAccess {
 
     constructor(
         private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
+        private readonly s3: AWS.S3 = new AWS.S3({ signatureVersion: 'v4' }),
         private readonly todoTable = process.env.TODO_TABLE,
         private readonly bucketName = process.env.IMAGES_S3_BUCKET,
         private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ) { }
+    
+    GenerateUrl(todoId: string) {
+        const logger = createLogger('generate-url');
+        logger.info('Generating image url'); 
+
+        return this.s3.getSignedUrl('putObject', {
+            Bucket: this.bucketName,
+            Key: todoId,
+            Expires: this.urlExpiration
+          })
+    }
 
     async DeleteItem(id: string): Promise<TodoItem[]> {
         const logger = createLogger('delete-todo');
@@ -27,6 +39,8 @@ export class TodoAccess {
     async CreateTodo(todo: TodoItem): Promise<TodoItem> {
         const logger = createLogger('create-todo');
         logger.info('Creating a todo item ', {...todo});
+
+        todo.attachmentUrl = `https://${this.bucketName}.s3.amazonaws.com/${todo.todoId}`;
 
         await this.docClient.put({
             TableName: this.todoTable,

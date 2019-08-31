@@ -8,6 +8,9 @@ import { UpdateTodoRequest } from '../requests/UpdateTodoRequest';
 
 const groupAccess = new TodoAccess();
 
+export async function GenerateUrl(todoId: string) {
+    return groupAccess.GenerateUrl(todoId);
+}
 
 export async function deleteItem(id: string): Promise<TodoItem[]> {
     return groupAccess.DeleteItem(id);
