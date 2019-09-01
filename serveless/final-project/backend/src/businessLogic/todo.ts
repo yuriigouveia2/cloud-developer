@@ -3,39 +3,43 @@ import { TodoAccess } from '../dataLayer/todoAccess';
 import { TodoItem } from '../models/TodoItem';
 import { CreateTodoRequest } from '../requests/CreateTodoRequest';
 import { UpdateTodoRequest } from '../requests/UpdateTodoRequest';
+import { getUserId } from '../lambda/utils';
+import { APIGatewayProxyEvent } from 'aws-lambda';
 
 
 
 const groupAccess = new TodoAccess();
+const bucketName = process.env.IMAGES_S3_BUCKET
 
 export async function GenerateUrl(todoId: string) {
     return groupAccess.GenerateUrl(todoId);
 }
 
-export async function deleteItem(id: string): Promise<TodoItem[]> {
-    return groupAccess.DeleteItem(id);
+export async function deleteItem(id: string, event: APIGatewayProxyEvent): Promise<TodoItem[]> {
+    const userId = getUserId(event);
+    return groupAccess.DeleteItem(id, userId);
 }
 
-export async function getAllTodos(): Promise<TodoItem[]> {
-    return groupAccess.GetAllTodos();
+export async function getAllTodos(event: APIGatewayProxyEvent): Promise<TodoItem[]> {
+    const userId = getUserId(event);
+    return groupAccess.GetAllTodos(userId);
 }
 
-export async function getItem(id: string): Promise<TodoItem> {
-    return groupAccess.GetItem(id);
+export async function getItem(id: string, event: APIGatewayProxyEvent): Promise<TodoItem> {
+    const userId = getUserId(event);
+    return groupAccess.GetItem(id, userId);
 }
 
 export async function UpdateTodo(
     id: string,
     updatedTodo: UpdateTodoRequest,
-    // jwtToken: string
+    event: APIGatewayProxyEvent
 ): Promise<TodoItem> {
 
-    // Should I send it from frontend?
-    updatedTodo.done = new Date(updatedTodo.dueDate).getTime() <= new Date().getTime();
+    const userId = getUserId(event);
+    const todo: TodoItem = await groupAccess.GetItem(id, userId);
 
-    const todo: TodoItem = await groupAccess.GetItem(id);
-
-    return await groupAccess.UpdateTodo(id, {
+    return await groupAccess.UpdateTodo(id, userId, {
         todoId: id,
         createdAt: todo.createdAt,
         userId: todo.userId,
@@ -47,19 +51,20 @@ export async function UpdateTodo(
 
 export async function CreateTodo(
     createTodoRequest: CreateTodoRequest,
-    // jwtToken: string
+    event: APIGatewayProxyEvent
 ): Promise<TodoItem> {
 
     const itemId = uuid.v4();
-    // const userId = getUserId(jwtToken);
+    const userId = getUserId(event);
     const itemDone: boolean = new Date(createTodoRequest.dueDate).getTime() <= new Date().getTime(); 
 
     return await groupAccess.CreateTodo({
         todoId: itemId,
-        userId: 'static-temporary-userId',
+        userId: userId,
         name: createTodoRequest.name,
         createdAt: new Date().toISOString(),
         dueDate: createTodoRequest.dueDate,
-        done: itemDone
+        done: itemDone,
+        attachmentUrl: `https://${bucketName}.s3.amazonaws.com/${itemId}`
     });
 }

@@ -9,12 +9,13 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const logger = createLogger('get-todos');
   logger.info('Processing event ', event);
 
-  const todos = await getAllTodos();
+  const todos = await getAllTodos(event);
 
   return {
     statusCode: 200,
     headers: {
-      'Access-Control-Allow-Origin':'*'
+      'Access-Control-Allow-Origin':'*',
+      'Access-Control-Allow-Credentials': true
     },
     body: JSON.stringify({
       items: todos

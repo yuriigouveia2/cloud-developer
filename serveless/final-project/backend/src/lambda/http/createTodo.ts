@@ -7,14 +7,13 @@ import { CreateTodo } from '../../businessLogic/todo';
 
 export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEvent): Promise<APIGatewayProxyResult> => {
   const newTodo: CreateTodoRequest = JSON.parse(event.body);
-  const newItem = await CreateTodo(newTodo);
+  const newItem = await CreateTodo(newTodo, event);
 
   // TODO: Implement creating a new TODO item
   return {
     statusCode: 201,
     headers: {
-      'Access-Control-Allow-Origin': '*',
-      'Access-Control-Allow-Credentials': true
+      'Access-Control-Allow-Origin': '*'
     },
     body: JSON.stringify({
       newItem

@@ -13,7 +13,7 @@ export class TodoAccess {
         private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
     ) { }
     
-    GenerateUrl(todoId: string) {
+    async GenerateUrl(todoId: string) {
         const logger = createLogger('generate-url');
         logger.info('Generating image url'); 
 
@@ -24,13 +24,13 @@ export class TodoAccess {
           })
     }
 
-    async DeleteItem(id: string): Promise<TodoItem[]> {
+    async DeleteItem(id: string, userId: string): Promise<TodoItem[]> {
         const logger = createLogger('delete-todo');
         logger.info('Deleting todo item'); 
 
         await this.docClient.delete({
             TableName: this.todoTable,
-            Key: { "todoId": id }
+            Key: { "todoId": id, 'userId': userId}
         }).promise()
 
         return [];
@@ -40,8 +40,6 @@ export class TodoAccess {
         const logger = createLogger('create-todo');
         logger.info('Creating a todo item ', {...todo});
 
-        todo.attachmentUrl = `https://${this.bucketName}.s3.amazonaws.com/${todo.todoId}`;
-
         await this.docClient.put({
             TableName: this.todoTable,
             Item: todo
@@ -50,13 +48,13 @@ export class TodoAccess {
         return todo;
     }
 
-    async UpdateTodo(id: string, todo: TodoItem): Promise<TodoItem> {
+    async UpdateTodo(id: string, userId: string,  todo: TodoItem): Promise<TodoItem> {
         const logger = createLogger('update-todo');
         logger.info('Updating a todo item ', {...todo});
 
         await this.docClient.update({
             TableName: this.todoTable,
-            Key: { 'todoId': id },
+            Key: { 'todoId': id, 'userId': userId },
             UpdateExpression: 'set #name = :n, done = :d, dueDate = :dt',
             ExpressionAttributeNames:{
                 "#name": "name"
@@ -72,25 +70,32 @@ export class TodoAccess {
         return todo;
     }
 
-    async GetItem(id: string): Promise<TodoItem> {
+    async GetItem(id: string, userId: string): Promise<TodoItem> {
         const logger = createLogger('get-item');
         logger.info('Getting signle todo item');
 
         const result = await this.docClient.get({
             TableName: this.todoTable,
-            Key: { 'todoId': id }
+            Key: { 'todoId': id, 'userId': userId }
         }).promise();
 
         return result.Item as TodoItem;
 
     }
 
-    async GetAllTodos(): Promise<TodoItem[]> {
+    async GetAllTodos(userId: string): Promise<TodoItem[]> {
         const logger = createLogger('get-todos');
         logger.info('Getting all todo items ');
 
         const result = await this.docClient.scan({
-            TableName: this.todoTable
+            TableName: this.todoTable,
+            FilterExpression: '#userId = :userId',
+            ExpressionAttributeNames: {
+                '#userId': 'userId',
+            },
+            ExpressionAttributeValues: {
+                ':userId': userId,
+            }
         }).promise();
 
         const items = result.Items;
@@ -98,10 +103,10 @@ export class TodoAccess {
         return items as TodoItem[];
     }
 
-    async todoExists(todoId: string): Promise<boolean> {
+    async todoExists(todoId: string, userId: string): Promise<boolean> {
         const result = await this.docClient.get({
             TableName: this.todoTable,
-            Key: { "todoId": todoId}
+            Key: { "todoId": todoId, 'userId': userId}
         }).promise();
 
         return !!result.Item;

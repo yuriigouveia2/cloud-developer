@@ -1,14 +1,11 @@
 import { CustomAuthorizerEvent, CustomAuthorizerResult } from 'aws-lambda'
 import 'source-map-support/register'
-// import { verify, decode } from 'jsonwebtoken'
+import { verify } from 'jsonwebtoken'
 import { createLogger } from '../../utils/logger'
-// import Axios from 'axios'
-// import { Jwt } from '../../auth/Jwt'
 import { JwtPayload } from '../../auth/JwtPayload'
 
 const logger = createLogger('auth')
-
-// const jwksUrl = 'https://test-endpoint.auth0.com/.well-known/jwks.json'
+const authSecret = process.env.AUTH_0_SECRET;
 
 export const handler = async (
   event: CustomAuthorizerEvent
@@ -52,11 +49,9 @@ export const handler = async (
 
 async function verifyToken(authHeader: string): Promise<JwtPayload> {
   const token = getToken(authHeader)
-  console.log(token)
-  // const jwt: Jwt = decode(token, { complete: true }) as Jwt
+  const jwt: JwtPayload = verify(token, authSecret, { algorithms: ['HS256']}) as JwtPayload
 
-  // TODO: Implement token verification
-  return undefined
+  return jwt
 }
 
 function getToken(authHeader: string): string {

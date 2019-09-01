@@ -14,9 +14,11 @@ provider:
   region: ${opt:region, 'sa-east-1'}
 
   environment:
-    TODO_TABLE: Todo-${self:provider.stage}
+    TODO_TABLE: Todo-2-${self:provider.stage}
     SIGNED_URL_EXPIRATION: 300
     IMAGES_S3_BUCKET: serverless-images-todo-${self:provider.stage}
+    INDEX_NAME: UserIdIndex
+    AUTH_0_SECRET: pTljSVYQyrubN3ReLz5SaMeD2agfAOL2RFV6CfWwoVhbFJA5BU_IflPk_HEy79dB
 
 custom:
   documentation:
@@ -32,8 +34,8 @@ custom:
 
 functions:
 
-  # Auth:
-  #   handler: src/lambda/auth/auth0Authorizer.handler
+  Auth:
+    handler: src/lambda/auth/auth0Authorizer.handler
 
   #TODO: Configure this function
   GetTodos:
@@ -43,6 +45,7 @@ functions:
           method: get
           path: todos
           cors: true
+          authorizer: Auth
           documentation:
             summary: Get todo items
             description: Get todo items
@@ -51,6 +54,7 @@ functions:
         Action:
           - dynamodb:Scan
           - dynamodb:GetItem
+          - dynamodb:Query
         Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
 
   # TODO: Configure this function
@@ -61,12 +65,13 @@ functions:
           method: post
           path: todos
           cors: true
-          # reqValidatorName: RequestBodyValidator
+          authorizer: Auth
+          reqValidatorName: RequestBodyValidator
           documentation:
             summary: Create a new todo
             description: Create a new todo
-            # requestModels:
-            #   'application/json': TodoRequest
+            requestModels:
+              'application/json': TodoRequest
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -80,6 +85,8 @@ functions:
       - http:
           method: patch
           path: todos/{todoId}
+          cors: true
+          authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -95,6 +102,8 @@ functions:
       - http:
           method: delete
           path: todos/{todoId}
+          cors: true
+          authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
@@ -110,27 +119,62 @@ functions:
       - http:
           method: post
           path: todos/{todoId}/attachment
+          cors: true
+          authorizer: Auth
     iamRoleStatements:
       - Effect: Allow
         Action:
           - s3:PutObject
           - s3:GetObject
         Resource: arn:aws:s3:::${self:provider.environment.IMAGES_S3_BUCKET}/*
+      - Effect: Allow
+        Action:
+          - dynamodb:Scan
+          - dynamodb:GetItem
+          - dynamodb:UpdateItem
+        Resource: arn:aws:dynamodb:${self:provider.region}:*:table/${self:provider.environment.TODO_TABLE}
 
 resources:
   Resources:
+    GatewayResponseDefault4XX:
+      Type: 'AWS::ApiGateway::GatewayResponse'
+      Properties:
+        ResponseParameters:
+          gatewayresponse.header.Access-Control-Allow-Origin: "'*'"
+          gatewayresponse.header.Access-Control-Allow-Headers: "'Content-Type,X-Amz-Date,Authorization,X-Api-Key,X-Amz-Security-Token'"
+          gatewayresponse.header.Access-Control-Allow-Methods: "'GET,OPTIONS,POST,PATCH,PUT,DELETE'"
+        ResponseType: DEFAULT_4XX
+        RestApiId:
+          Ref: 'ApiGatewayRestApi'
+
+
     # TODO: Add any necessary AWS resources
     TodoDynamoDBTable:
       Type: AWS::DynamoDB::Table
       Properties:
         AttributeDefinitions:
+          - AttributeName: userId
+            AttributeType: S
+          - AttributeName: createdAt
+            AttributeType: S
           - AttributeName: todoId
             AttributeType: S
         KeySchema:
-          - AttributeName: todoId # PK
+          - AttributeName: userId
             KeyType: HASH
+          - AttributeName: todoId
+            KeyType: RANGE
         BillingMode: PAY_PER_REQUEST
         TableName: ${self:provider.environment.TODO_TABLE}
+        LocalSecondaryIndexes:
+          - IndexName: ${self:provider.environment.INDEX_NAME}
+            KeySchema:
+              - AttributeName: userId
+                KeyType: HASH
+              - AttributeName: createdAt
+                KeyType: RANGE
+            Projection:
+              ProjectionType: ALL
 
     RequestBodyValidator:
       Type: AWS::ApiGateway::RequestValidator

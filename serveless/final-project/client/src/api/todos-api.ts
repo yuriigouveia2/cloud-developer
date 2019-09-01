@@ -21,13 +21,17 @@ export async function createTodo(
   idToken: string,
   newTodo: CreateTodoRequest
 ): Promise<Todo> {
-  const response = await Axios.post(`${apiEndpoint}/todos`,  JSON.stringify(newTodo), {
+  const reply = await fetch(`${apiEndpoint}/todos`, {
+    method: 'POST',
+    mode: 'cors',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
-    }
+    },
+    body: JSON.stringify(newTodo)
   })
-  return response.data.item
+  const result = await reply.json()
+  return result.newItem
 }
 
 export async function patchTodo(
@@ -35,11 +39,14 @@ export async function patchTodo(
   todoId: string,
   updatedTodo: UpdateTodoRequest
 ): Promise<void> {
-  await Axios.patch(`${apiEndpoint}/todos/${todoId}`, JSON.stringify(updatedTodo), {
+
+  await fetch(`${apiEndpoint}/todos/${todoId}`, {
+    method: 'PATCH',
     headers: {
       'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
-    }
+    },
+    body: JSON.stringify(updatedTodo)
   })
 }
 
@@ -59,13 +66,17 @@ export async function getUploadUrl(
   idToken: string,
   todoId: string
 ): Promise<string> {
-  const response = await Axios.post(`${apiEndpoint}/todos/${todoId}/attachment`, '', {
+  const reply =  await fetch(`${apiEndpoint}/todos/${todoId}/attachment`, {
+    method: 'POST',
+    mode: 'cors',
     headers: {
-      'Content-Type': 'application/json',
       'Authorization': `Bearer ${idToken}`
-    }
+    },
+    body: ''    
   })
-  return response.data.uploadUrl
+
+  const result = await reply.json()
+  return result.uploadUrl;
 }
 
 export async function uploadFile(uploadUrl: string, file: Buffer): Promise<void> {

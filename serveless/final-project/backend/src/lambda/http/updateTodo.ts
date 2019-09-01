@@ -9,7 +9,7 @@ export const handler: APIGatewayProxyHandler = async (event: APIGatewayProxyEven
   const todoId = event.pathParameters.todoId
   const updatedTodo: UpdateTodoRequest = JSON.parse(event.body)
 
-  const updatedItem = await UpdateTodo(todoId, updatedTodo);
+  const updatedItem = await UpdateTodo(todoId, updatedTodo, event);
 
    // TODO: Update a TODO item with the provided id using values in the "updatedTodo" object
   return {
