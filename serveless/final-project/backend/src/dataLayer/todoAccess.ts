@@ -87,9 +87,9 @@ export class TodoAccess {
         const logger = createLogger('get-todos');
         logger.info('Getting all todo items ');
 
-        const result = await this.docClient.scan({
+        const result = await this.docClient.query({
             TableName: this.todoTable,
-            FilterExpression: '#userId = :userId',
+            KeyConditionExpression: '#userId = :userId',
             ExpressionAttributeNames: {
                 '#userId': 'userId',
             },
