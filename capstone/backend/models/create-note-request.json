@@ -1,0 +1,19 @@
+{
+    "$schema": "http://json-schema.org/draft-04/schema#",
+    "title": "note",
+    "type": "object",
+    "properties": {
+      "text": {
+        "type": "string"
+      },
+      "createdAt": {
+        "type": "string"
+      }
+    },
+    "required": [
+      "text",
+      "dueDate"
+    ],
+    "additionalProperties": false
+  }
+  
