@@ -8,7 +8,7 @@ This appliation will allow to create/remove/update/get NOTE items. Each NOTE ite
 
 # Functions to be implemented
 
-To implement this project you need to implement the following functions and configure them in the `serverless.yml` file:
+This project was implemented with the following functions and configuration in the `serverless.yml` file:
 
 * `Auth` - this function should implement a custom authorizer for API Gateway that should be added to all other functions.
 * `GetNotes` - should return all NOTEs for a current user. 
