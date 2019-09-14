@@ -6,11 +6,12 @@ import { createLogger } from "../utils/logger";
 export class NoteAccess {
 
     constructor(
-        private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient(),
-        private readonly s3: AWS.S3 = new AWS.S3({ signatureVersion: 'v4' }),
-        private readonly noteTable = process.env.NOTE_TABLE,
-        private readonly bucketName = process.env.IMAGES_S3_BUCKET,
-        private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION
+        private readonly awsRegion = process.env.REGION || 'sa-east-1',
+        private readonly docClient: DocumentClient = new AWS.DynamoDB.DocumentClient({region: awsRegion}),
+        private readonly s3: AWS.S3 = new AWS.S3({ signatureVersion: 'v4', region: awsRegion}),
+        private readonly noteTable = process.env.NOTE_TABLE || 'Note-dev',
+        private readonly bucketName = process.env.IMAGES_S3_BUCKET || 'serverless-images-note-dev',
+        private readonly urlExpiration = process.env.SIGNED_URL_EXPIRATION || 300
     ) { }
     
     async GenerateUrl(noteId: string) {
@@ -18,7 +19,8 @@ export class NoteAccess {
         logger.info('Generating image url', {
             Bucket: this.bucketName,
             Key: noteId,
-            Expires: Number(this.urlExpiration)
+            Expires: Number(this.urlExpiration),
+            REGION: this.awsRegion
         }); 
 
         return this.s3.getSignedUrl('putObject', {
