@@ -107,7 +107,7 @@ export class Notes extends React.PureComponent<NotesProps, NotesState> {
             }}
             fluid
             actionPosition="left"
-            placeholder="To change the world..."
+            placeholder="To remember all the things, just write a note..."
             onChange={this.handleNameChange}
           />
         </Grid.Column>
