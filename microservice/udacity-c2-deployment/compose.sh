@@ -1,0 +1,1 @@
+HOST_IMG=localhost:8082 AWS_MEDIA_BUCKET=udagram-yuri-dev AWS_PROFILE=DEPLOYED AWS_REGION=sa-east-1 JWT_SECURE=secure POSTGRES_DATABASE=udagramyuridev POSTGRES_HOST=udagramyuridev.cis6odahbbfw.sa-east-1.rds.amazonaws.com POSTGRES_PASSWORD=udagramyuridev POSTGRES_USERNAME=udagramyuridev docker-compose up

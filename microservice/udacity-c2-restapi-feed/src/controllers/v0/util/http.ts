@@ -1,4 +1,4 @@
-import {config} from '../../../config/config';
+import {config} from './../../../config/config';
 // import { HttpClient, HttpHeaders,  HttpErrorResponse, HttpRequest, HttpEvent } from '@angular/common/http';
 // import { catchError, tap, map } from 'rxjs/operators';
 import axios from 'axios';

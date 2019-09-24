@@ -1,7 +1,7 @@
 import { Router, Request, Response } from 'express';
-import { FeedItem } from '../models/FeedItem';
-import * as AWS from '../../../../aws';
-import { Http } from '../../util/http';
+import { FeedItem } from './../models/FeedItem';
+import * as AWS from './../../../../aws';
+import { Http } from './../../util/http';
 
 const router: Router = Router();
 const http: Http = new Http();

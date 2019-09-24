@@ -9,7 +9,7 @@ import { V0MODELS } from './controllers/v0/model.index';
 
 (async () => {
   await sequelize.addModels(V0MODELS);
-  await sequelize.sync();
+  //await sequelize.async();
 
   const app = express();
   const port = process.env.PORT || 8081; // default port to listen
