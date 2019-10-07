@@ -1,0 +1,21 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: pod-example
+spec:
+  containers:
+  - image: yuriigouveia/reverseproxy
+    name: reverseproxy
+    command: ["/bin/sh"]
+    args: ["-c", "while true; do date >> /var/log/app.txt; sleep 5;done"]
+    imagePullPolicy: Always   
+    resources:
+      requests:
+        memory: "64Mi"
+        cpu: "250m"
+      limits:
+        memory: "1024Mi"
+        cpu: "500m"       
+    ports:
+    - containerPort: 8081
+  restartPolicy: Always
