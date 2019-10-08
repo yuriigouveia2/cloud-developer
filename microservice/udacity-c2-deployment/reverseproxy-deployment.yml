@@ -14,8 +14,8 @@ spec:
       containers:
       - image: yuriigouveia/reverseproxy
         name: reverseproxy
-        command: ["/bin/sh"] # initialize command
-        args: ["-c", "while true; do date >> /var/log/app.txt; sleep 5;done"] # command that forbid a pod to shutdown
+        # command: ["/bin/sh"] # initialize command
+        # args: ["-c", "while true; do date >> /var/log/app.txt; sleep 5;done"] # command that forbid a pod to shutdown
         imagePullPolicy: Always          
         resources:
           requests:
