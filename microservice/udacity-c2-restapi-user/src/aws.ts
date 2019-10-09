@@ -4,14 +4,10 @@ import { config } from './config/config';
 const c = config.dev;
 
 //Configure AWS
-var credentials = null;
-if(c.aws_profile !== 'DEPLOYED') {
-  credentials = new AWS.SharedIniFileCredentials({profile: c.aws_profile});
-  
-} else {
-  credentials = new AWS.SharedIniFileCredentials({profile: 'default'});
-}
-AWS.config.credentials = credentials;
+// if(c.aws_profile !== 'DEPLOYED') {
+  var credentials = new AWS.SharedIniFileCredentials({profile: c.aws_profile});
+  AWS.config.credentials = credentials; 
+// }
 
 
 export const s3 = new AWS.S3({
