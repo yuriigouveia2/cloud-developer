@@ -3,7 +3,7 @@ kind: ConfigMap
 data:
   HOST_IMG: localhost:8082
   AWS_MEDIA_BUCKET: udagram-yuri-dev
-  AWS_PROFILE: DEPLOYED
+  AWS_PROFILE: default
   AWS_REGION: sa-east-1
   JWT_SECURE: secure
   POSTGRES_DATABASE: udagramyuridev
