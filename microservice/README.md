@@ -12,5 +12,7 @@ Once you have Kubernetes installed and configured, you can run the script deploy
 
 After the application is deployed on Kubernetes you must expose the ports of the application (more detailed [here](https://github.com/yuriigouveia2/cloud-developer/blob/master/microservice/udacity-c2-deployment/kubernetes/README.md))
 
+Observation: EXPOSE REVERSE PROXY TO PORT 8081.
+
 Finally, you can see the application running on:
 `http://localhost:8100`
