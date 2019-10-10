@@ -10,7 +10,7 @@ kubectl port-forward pod/frontend-7b4cb8d4c-tqjwl 8100:8100
 The best way is to use a service to kubernetes automatically redirect the access to some of the pods
 of the application. To do this, you need to run the command below:
 ```
-kubectl port-forward service/frontend 8100:8100
+kubectl port-forward service/reverseproxy 8081:8081
 ```
 
 To scale a deployment, you need to use the command below:
